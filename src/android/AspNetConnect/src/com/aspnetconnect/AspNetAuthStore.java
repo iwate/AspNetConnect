@@ -38,7 +38,7 @@ public class AspNetAuthStore implements IAspNetAuthStore {
     @Override
     public void setAuthorization(String type, String token, long expire) {
         SharedPreferences.Editor editor = this.preferences.edit();
-        editor.putString(TOKEN_TYPE, tokenType);
+        editor.putString(TOKEN_TYPE, type);
         editor.putString(TOKEN, token);
         editor.putLong(EXPIRE, expire);
         editor.commit();
@@ -56,6 +56,18 @@ public class AspNetAuthStore implements IAspNetAuthStore {
     public boolean isNearExpiration(long interval) {
         return getExpire() - new Date().getTime() < interval;
     }
+    
+    @Override
+	public void clearAuthorization() {
+    	SharedPreferences.Editor editor = this.preferences.edit();
+        editor.remove(TOKEN_TYPE);
+        editor.remove(TOKEN);
+        editor.remove(EXPIRE);
+        editor.commit();
+        this.tokenType = null;
+        this.token = null;
+        this.expire = 0;
+	}
 
     private String getToken(){
         if(token == null) {

@@ -1,6 +1,6 @@
 package com.aspnetconnect;
 
-public enum AspNetProvider {
+public enum AspNetExternalLoginProvider {
     Facebook
     , Twitter
 }

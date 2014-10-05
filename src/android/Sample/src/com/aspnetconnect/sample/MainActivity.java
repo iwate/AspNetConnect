@@ -1,7 +1,14 @@
 package com.aspnetconnect.sample;
 
+import java.net.MalformedURLException;
+
+import com.android.volley.Request;
+import com.aspnetconnect.AspNetAuthStore;
+import com.aspnetconnect.AspNetManager;
+
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -9,8 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity implements AspNetManager.NetworkListener {
+	
+	AspNetManager manager;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -18,6 +27,14 @@ public class MainActivity extends Activity {
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+		try {
+			manager = new AspNetManager(
+					getString(R.string.api_url)
+					, new AspNetAuthStore(this, getString(R.string.app_unique))
+					, this);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -34,7 +51,9 @@ public class MainActivity extends Activity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_logout) {
+			manager.logout();
+			moveTo(LoginActivity.class);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -55,5 +74,18 @@ public class MainActivity extends Activity {
 					false);
 			return rootView;
 		}
+	}
+
+	@Override
+	public <T> void enqueue(Request<T> request) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private <T> void moveTo(Class<T> clazz){
+		Intent intent = new Intent(getApplicationContext(),clazz);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+		startActivity(intent);
+		finish();
 	}
 }

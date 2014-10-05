@@ -3,6 +3,9 @@
 
     <string name="app_name">Sample</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-
+	<string name="action_logout">Logout</string>
+	
+	<string name="api_url">http://mimic-hackm.azurewebsites.net/</string>
+	<string name="app_unique">com:aspnetconnect:sample</string>
+	
 </resources>

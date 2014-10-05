@@ -75,6 +75,12 @@ public class AspNetManager {
     	Type stringStringMap = new TypeToken<Map<String, String>>(){}.getType();
     	return gson.fromJson(json, stringStringMap);
     }
+    public boolean hasAuthorization(){
+    	return store.getAuthorization() != null;
+    }
+    public void logout(){
+    	store.clearAuthorization();
+    }
     public void register(final AspNetRegisterRequest model, final LoginListener loginListener, final ErrorListener errorListener){
     	String endpoint = url.toString() + REGISTER;
     	networkListener.enqueue(new GsonRequest<AspNetRegisterResponse>(gsonBuilder.create()
@@ -93,7 +99,7 @@ public class AspNetManager {
 					@Override
 					public void onErrorResponse(VolleyError error) {
 						// TODO Auto-generated method stub
-						
+						errorListener.onError(error);
 					}
 				}));
     }
@@ -122,7 +128,7 @@ public class AspNetManager {
 					}
 				}));
     }
-    public void loginWith(final AspNetProvider provider, final LoginListener loginListener, final ErrorListener errorListener){
+    public void loginWith(final AspNetExternalLoginProvider provider, final LoginListener loginListener, final ErrorListener errorListener){
     	if(externalLogins == null){
     		getExternalLogins(new ExternalLoginsListener(){
 				@Override
@@ -134,7 +140,7 @@ public class AspNetManager {
     		_loginWith(provider, loginListener, errorListener);
     	}
     }
-    private void _loginWith(AspNetProvider provider, LoginListener loginListener, ErrorListener errorListener){
+    private void _loginWith(AspNetExternalLoginProvider provider, LoginListener loginListener, ErrorListener errorListener){
     	
     }
     private void getExternalLogins(final ExternalLoginsListener successListener, final ErrorListener errorListener){
@@ -152,7 +158,7 @@ public class AspNetManager {
 						while(iterator.hasNext()){
 							AspNetExternalLoginResponse externalLogin = iterator.next();
 							externalLogins.setExternalLoginLink(
-									AspNetProvider.valueOf(externalLogin.getName())
+									AspNetExternalLoginProvider.valueOf(externalLogin.getName())
 									, externalLogin.getUrl());
 						}
 						successListener.onGotExternalLogins();

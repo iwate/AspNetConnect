@@ -5,4 +5,5 @@ public interface IAspNetAuthStore {
     public void setAuthorization(String type, String token, long expire);
     public boolean isExpiration();
     public boolean isNearExpiration(long interval);
+    public void clearAuthorization();
 }
