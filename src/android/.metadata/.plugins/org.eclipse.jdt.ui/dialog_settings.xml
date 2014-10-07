@@ -25,6 +25,10 @@
 	<section name="BuildPathsPropertyPage">
 		<item value="0" key="pageIndex"/>
 	</section>
+	<section name="RefactoringWizard.preview">
+		<item value="400" key="height"/>
+		<item value="600" key="width"/>
+	</section>
 	<section name="quick_assist_proposal_size">
 	</section>
 	<section name="SourceActionDialog.methods">
@@ -55,10 +59,21 @@
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>
+	<section name="DialogBounds_GetterSetterTreeSelectionDialog">
+		<item value="588" key="DIALOG_WIDTH"/>
+		<item value="84" key="DIALOG_Y_ORIGIN"/>
+		<item value="696" key="DIALOG_HEIGHT"/>
+		<item value="674" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Meiryo UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Meiryo UI" key="DIALOG_FONT_NAME"/>
+	</section>
 	<section name="NewClassWizardPage">
 		<item value="false" key="create_constructor"/>
 		<item value="true" key="create_unimplemented"/>
 		<item value="false" key="create_main"/>
+	</section>
+	<section name="AddGetterSetterDialog">
+		<item value="false" key="RemoveFinal"/>
+		<item value="false" key="SortOrdering"/>
 	</section>
 	<section name="DialogBounds_GenerateConstructorUsingFieldsSelectionDialog">
 		<item value="571" key="DIALOG_WIDTH"/>

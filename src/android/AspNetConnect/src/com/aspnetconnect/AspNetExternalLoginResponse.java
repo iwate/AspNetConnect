@@ -3,11 +3,11 @@ package com.aspnetconnect;
 import com.google.gson.annotations.SerializedName;
 
 public class AspNetExternalLoginResponse {
-	@SerializedName("Name")
+	@SerializedName("name")
 	private String name;
-	@SerializedName("Url")
+	@SerializedName("url")
 	private String url;
-	@SerializedName("State")
+	@SerializedName("state")
 	private String state;
 	public String getName() {
 		return name;

@@ -1,7 +1,10 @@
 package com.aspnetconnect;
 
+import android.net.Uri;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,18 +13,16 @@ import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class AspNetManager {
-
-    public interface RegisterListener{
-        public void onRegister(AspNetUser user);
-    }
     public interface LoginListener{
         public void onLogin(AspNetUser user);
     }
@@ -30,6 +31,9 @@ public class AspNetManager {
     }
     public interface NetworkListener{
         public <T> void enqueue(Request<T> request);
+    }
+    public interface ExternalLoginListener{
+        public void onLoadRequest(String url);
     }
     private interface ExternalLoginsListener{
     	public void onGotExternalLogins();
@@ -77,6 +81,15 @@ public class AspNetManager {
     }
     public boolean hasAuthorization(){
     	return store.getAuthorization() != null;
+    }
+    public static void setAuthorizationFrom(Uri uri, String callback, IAspNetAuthStore store){
+    	Uri params = Uri.parse(uri.toString().replaceFirst("#", "?"));
+    	if(params != null && params.toString().startsWith(callback)){
+            String token = params.getQueryParameter("access_token");
+            String type = params.getQueryParameter("token_type");
+            long expiresIn = Long.parseLong(params.getQueryParameter("expires_in"));
+            store.setAuthorization(type, token, new Date().getTime() + expiresIn);
+        }
     }
     public void logout(){
     	store.clearAuthorization();
@@ -128,38 +141,46 @@ public class AspNetManager {
 					}
 				}));
     }
-    public void loginWith(final AspNetExternalLoginProvider provider, final LoginListener loginListener, final ErrorListener errorListener){
+    public void loginWith(final AspNetExternalLoginProvider provider, final ExternalLoginListener externalListener, final LoginListener loginListener, final ErrorListener errorListener){
+    	if(callback == null){
+    		throw new IllegalArgumentException("Callback is null.");
+    	}
     	if(externalLogins == null){
     		getExternalLogins(new ExternalLoginsListener(){
 				@Override
 				public void onGotExternalLogins() {
-					_loginWith(provider, loginListener, errorListener);
+					_loginWith(provider, externalListener, loginListener, errorListener);
 				}}, errorListener);
         }
     	else{
-    		_loginWith(provider, loginListener, errorListener);
+    		_loginWith(provider, externalListener, loginListener, errorListener);
     	}
     }
-    private void _loginWith(AspNetExternalLoginProvider provider, LoginListener loginListener, ErrorListener errorListener){
-    	
+    private void _loginWith(AspNetExternalLoginProvider provider, ExternalLoginListener externalListener, LoginListener loginListener, ErrorListener errorListener){
+    	externalListener.onLoadRequest(externalLogins.getExternalLoginLonk(provider));
     }
     private void getExternalLogins(final ExternalLoginsListener successListener, final ErrorListener errorListener){
-    	String endpoint = url.toString() + String.format(EXTERNAL_LOGINS, callback);
+    	String endpoint = url.toString() + String.format(EXTERNAL_LOGINS, callback );
     	networkListener.enqueue(new GsonRequest<Collection<AspNetExternalLoginResponse>>(gsonBuilder.create()
     			, Request.Method.GET
     			, endpoint
-    			, new TypeToken<Collection<AspNetExternalLoginResponse>>(){}.getClass()
+    			, new TypeToken<Collection<AspNetExternalLoginResponse>>(){}.getType()
     			, null
     			, null
     			, new Response.Listener<Collection<AspNetExternalLoginResponse>>() {
 					@Override
 					public void onResponse(Collection<AspNetExternalLoginResponse> response) {
+						externalLogins = new AspNetExternalLogins();
 						Iterator<AspNetExternalLoginResponse> iterator = response.iterator();
-						while(iterator.hasNext()){
-							AspNetExternalLoginResponse externalLogin = iterator.next();
-							externalLogins.setExternalLoginLink(
-									AspNetExternalLoginProvider.valueOf(externalLogin.getName())
-									, externalLogin.getUrl());
+						try {
+							while(iterator.hasNext()){
+								AspNetExternalLoginResponse externalLogin = iterator.next();
+								AspNetExternalLoginProvider provider = AspNetExternalLoginProvider.valueOf(externalLogin.getName());
+								String endpoint = url.toURI().resolve(externalLogin.getUrl()).toString();
+								externalLogins.setExternalLoginLink(provider, endpoint);
+							}
+						} catch (URISyntaxException e) {
+							e.printStackTrace();
 						}
 						successListener.onGotExternalLogins();
 					}
@@ -171,5 +192,48 @@ public class AspNetManager {
 					}
 				}));
     }
-
+    public <T> Request<T> invoke(int method, String route, Class<T> clazz, Map<String,String> headers, Object params, Listener<T> success, Response.ErrorListener error){
+    	String endpoint = "";
+		try {
+			endpoint = url.toURI().resolve(route).toString();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+    	if(headers == null){
+    		headers = new HashMap<String, String>();
+    	}
+    	headers.put("Authorization", store.getAuthorization());
+    	Request<T> request = new GsonRequest<T>(gsonBuilder.create()
+    			, method
+    			, endpoint
+    			, clazz
+    			, headers
+    			, gsonToMap(params)
+    			, success
+    			, error);
+    	networkListener.enqueue(request);
+    	return request;
+    }
+    public <T> Request<T> invoke(int method, String route, Type type, Map<String,String> headers, Object params, Listener<T> success, Response.ErrorListener error){
+    	String endpoint = "";
+		try {
+			endpoint = url.toURI().resolve(route).toString();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+    	if(headers == null){
+    		headers = new HashMap<String, String>();
+    	}
+    	headers.put("Authorization", store.getAuthorization());
+    	Request<T> request = new GsonRequest<T>(gsonBuilder.create()
+    			, method
+    			, endpoint
+    			, type
+    			, headers
+    			, gsonToMap(params)
+    			, success
+    			, error);
+    	networkListener.enqueue(request);
+    	return request;
+    }
 }

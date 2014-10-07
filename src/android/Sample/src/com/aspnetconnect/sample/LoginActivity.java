@@ -13,18 +13,22 @@ import com.aspnetconnect.AspNetLoginRequest;
 import com.aspnetconnect.AspNetManager;
 import com.aspnetconnect.AspNetRegisterRequest;
 import com.aspnetconnect.AspNetUser;
-import com.aspnetconnect.sample.LoginFragment.LoginFragmentListener;
-import com.aspnetconnect.sample.RegisterFragment.RegisterFragmentListener;
+import com.aspnetconnect.LoginFragment;
+import com.aspnetconnect.LoginFragment.LoginFragmentListener;
+import com.aspnetconnect.RegisterFragment;
+import com.aspnetconnect.RegisterFragment.RegisterFragmentListener;
 
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity implements AspNetManager.NetworkListener
 													, AspNetManager.LoginListener
 													, AspNetManager.ErrorListener
+													, AspNetManager.ExternalLoginListener
 													, LoginFragmentListener
 													, RegisterFragmentListener{
 	RequestQueue queue;
@@ -39,9 +43,12 @@ public class LoginActivity extends Activity implements AspNetManager.NetworkList
 		try {
 			manager = new AspNetManager(
 					getString(R.string.api_url)
+					, getString(R.string.callback)
 					, new AspNetAuthStore(this, getString(R.string.app_unique))
 					, this);
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		if(manager.hasAuthorization()){
@@ -51,7 +58,7 @@ public class LoginActivity extends Activity implements AspNetManager.NetworkList
 			if (savedInstanceState == null) {
 				fragmentManager = this.getFragmentManager();
 				fragmentManager.beginTransaction()
-						.add(R.id.container, new RegisterFragment()).commit();
+				 		.add(R.id.container, RegisterFragment.newInstance(R.layout.fragment_register)).commit();
 			}
 		}
 	}
@@ -75,13 +82,13 @@ public class LoginActivity extends Activity implements AspNetManager.NetworkList
 
 	@Override
 	public void onLoginWith(AspNetExternalLoginProvider provider) {
-		manager.loginWith(provider, this, this);
+		manager.loginWith(provider, this, this, this);
 	}
 
 	@Override
 	public void swapToRegister() {
 		fragmentManager.beginTransaction()
-			.replace(R.id.container, new RegisterFragment()).commit();
+			.replace(R.id.container, RegisterFragment.newInstance(R.layout.fragment_register)).commit();
 	}
 
 	@Override
@@ -92,7 +99,7 @@ public class LoginActivity extends Activity implements AspNetManager.NetworkList
 	@Override
 	public void swapToLogin() {
 		fragmentManager.beginTransaction()
-		.replace(R.id.container, new LoginFragment()).commit();
+		.replace(R.id.container, LoginFragment.newInstance(R.layout.fragment_login)).commit();
 	}
 
 	@Override
@@ -110,5 +117,12 @@ public class LoginActivity extends Activity implements AspNetManager.NetworkList
 	public void onLogin(AspNetUser user) {
 		Toast.makeText(this, user.getUsername(), MODE_PRIVATE).show();
 		moveTo(MainActivity.class);
+	}
+
+	@Override
+	public void onLoadRequest(String url) {
+		Uri uri = Uri.parse(url);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		startActivity(intent);
 	}
 }

@@ -10,6 +10,20 @@ public final class R {
 	public static final class drawable {
 		public static final int ic_launcher = 0x7f020000;
 	}
+	public static final class id {
+		public static final int confirm_password = 0x7f08000c;
+		public static final int email = 0x7f08000b;
+		public static final int facebook = 0x7f080009;
+		public static final int login = 0x7f080007;
+		public static final int password = 0x7f080006;
+		public static final int register = 0x7f080008;
+		public static final int twitter = 0x7f08000a;
+		public static final int username = 0x7f080005;
+	}
+	public static final class layout {
+		public static final int fragment_login = 0x7f030003;
+		public static final int fragment_register = 0x7f030004;
+	}
 	public static final class string {
 		public static final int app_name = 0x7f040000;
 	}

@@ -16,6 +16,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+
 @SuppressLint("SimpleDateFormat")
 class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
@@ -56,14 +57,14 @@ class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Date> {
 			// Remove the ":" character to adapt the string to a
 			// format
 			// that can be parsed in Java
-			s = s.substring(0, 26) + s.substring(27);
+			//s = s.substring(0, 23) + s.substring(27);
+			s = s.substring(0, 30) + s.substring(31);
 		} catch (IndexOutOfBoundsException e) {
 			throw new JsonParseException("Invalid length");
 		}
 
 		// Parse the well-formatted date string
-		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss'.'SSSZ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSSSSSSZ");
 		dateFormat.setTimeZone(TimeZone.getDefault());
 		Date date = dateFormat.parse(s);
 
@@ -75,7 +76,7 @@ class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Date> {
 	 */
 	public static String serialize(Date date) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'", Locale.getDefault());
+				"yyyy-MM-dd'T'HH:mm:ss'.'SSSSSSS'Z'", Locale.getDefault());
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		String formatted = dateFormat.format(date);

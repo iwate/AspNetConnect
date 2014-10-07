@@ -13,8 +13,22 @@ public final class R {
     public static final class drawable {
         public static int ic_launcher=0x7f020000;
     }
+    public static final class id {
+        public static int confirm_password=0x7f060007;
+        public static int email=0x7f060006;
+        public static int facebook=0x7f060004;
+        public static int login=0x7f060002;
+        public static int password=0x7f060001;
+        public static int register=0x7f060003;
+        public static int twitter=0x7f060005;
+        public static int username=0x7f060000;
+    }
+    public static final class layout {
+        public static int fragment_login=0x7f030000;
+        public static int fragment_register=0x7f030001;
+    }
     public static final class string {
-        public static int app_name=0x7f030000;
+        public static int app_name=0x7f040000;
     }
     public static final class style {
         /** 
@@ -38,10 +52,10 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static int AppBaseTheme=0x7f040000;
+        public static int AppBaseTheme=0x7f050000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static int AppTheme=0x7f040001;
+        public static int AppTheme=0x7f050001;
     }
 }
